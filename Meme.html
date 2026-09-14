@@ -82,6 +82,8 @@
         "111.jpg": ""
       };
 
+      const groupMemeFilenames = ["115.jpg", "118.jpg", "124.jpg", "127.jpg"];
+
       const filenames = [
         "aoc.jpeg",
         "81.jpg",
@@ -92,14 +94,33 @@
         "111.jpg"
       ];
 
-      const galleryData = filenames.map((filename, index) => ({
-        src: `photos/life/meme/${filename}`,
-        id: index + 1,
-        caption: photoCaptions[filename].trim()
-      }));
+      const galleryData = [
+        ...filenames.map((filename, index) => ({
+          src: `photos/life/meme/${filename}`,
+          images: [`photos/life/meme/${filename}`],
+          id: index + 1,
+          caption: (photoCaptions[filename] || "").trim()
+        })),
+        {
+          src: `photos/life/meme/group/${groupMemeFilenames[0]}`,
+          images: groupMemeFilenames.map(
+            (filename) => `photos/life/meme/group/${filename}`
+          ),
+          id: filenames.length + 1,
+          caption: "",
+          grouped: true
+        }
+      ];
 
       const gridContainer = document.getElementById("gallery-grid");
-      const lightboxImages = galleryData.map((item) => item.src);
+      const lightboxImages = galleryData.flatMap((item) => item.images || [item.src]);
+      const lightboxStartIndexes = [];
+      let runningIndex = 0;
+
+      galleryData.forEach((item) => {
+        lightboxStartIndexes.push(runningIndex);
+        runningIndex += (item.images || [item.src]).length;
+      });
 
       galleryData.forEach((item, index) => {
         const article = document.createElement("article");
@@ -110,8 +131,13 @@
           ? `<figcaption class="mt-3 text-xs italic text-[var(--muted)]">${item.caption}</figcaption>`
           : "";
 
+        const groupBadge = item.grouped
+          ? `<div class="absolute top-2 right-2 bg-black/70 text-white text-[10px] px-2 py-1 rounded-full">4 photos</div>`
+          : "";
+
         article.innerHTML = `
-          <div class="overflow-hidden rounded-lg border border-[var(--border)]">
+          <div class="relative overflow-hidden rounded-lg border border-[var(--border)]">
+            ${groupBadge}
             <img
               src="${item.src}"
               alt="Meme ${item.id}"
@@ -128,7 +154,7 @@
       let currentIndex = 0;
 
       function openLightbox(index) {
-        currentIndex = index;
+        currentIndex = lightboxStartIndexes[index] || 0;
         updateLightboxImage();
         document.getElementById("lightbox").classList.remove("hidden");
       }

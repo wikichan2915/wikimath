@@ -96,7 +96,7 @@
         "147.jpeg": ""
       };
 
-      const filenames = [
+      const existingFilenames = [
         "107.png",
         "113.png",
         "137.png",
@@ -112,11 +112,117 @@
         "147.jpeg"
       ];
 
-      const galleryData = filenames.map((filename, index) => ({
-        src: `photos/life/sister/${filename}`,
-        id: index + 1,
-        caption: photoCaptions[filename].trim()
-      }));
+      const emojiFilenames = [
+        "IMG_0455.jpg",
+        "IMG_0506.jpg",
+        "IMG_0507.jpg",
+        "IMG_0508.jpg",
+        "IMG_0509.jpg",
+        "IMG_0510.jpg",
+        "IMG_0511.jpg",
+        "IMG_0512.jpg",
+        "IMG_0513.jpg",
+        "IMG_0514.jpg",
+        "IMG_0515.jpg",
+        "IMG_0516.jpg",
+        "IMG_0517.jpg",
+        "IMG_0518.jpg",
+        "IMG_0520.jpg",
+        "IMG_0521.jpg",
+        "IMG_0522.jpg",
+        "IMG_0524.jpg",
+        "IMG_0525.jpg",
+        "IMG_0530.jpg",
+        "IMG_0531.jpg",
+        "IMG_0532.jpg",
+        "IMG_0533.jpg",
+        "IMG_0534.jpg",
+        "IMG_0535.jpg",
+        "IMG_0536.jpg",
+        "IMG_0537.jpg",
+        "IMG_0538.jpg",
+        "IMG_0539.jpg",
+        "IMG_0540.jpg",
+        "IMG_0541.jpg",
+        "IMG_0542.jpg",
+        "IMG_0543.jpg",
+        "IMG_0544.jpg",
+        "IMG_0545.jpg",
+        "IMG_0546.jpg",
+        "IMG_0547.jpg",
+        "IMG_0548.jpg",
+        "IMG_0549.jpg",
+        "IMG_0550.jpg",
+        "IMG_0551.jpg",
+        "IMG_0552.jpg",
+        "IMG_0553.jpg",
+        "IMG_0554.jpg",
+        "IMG_0555.jpg",
+        "IMG_0556.jpg",
+        "IMG_0557.jpg",
+        "IMG_0558.jpg",
+        "IMG_0559.jpg",
+        "IMG_0560.jpg",
+        "IMG_0561.jpg",
+        "IMG_0562.jpg",
+        "IMG_0563.jpg",
+        "IMG_0564.jpg",
+        "IMG_0565.jpg",
+        "IMG_0567.jpg",
+        "IMG_0568.jpg",
+        "IMG_0569.jpg",
+        "IMG_0570.jpg",
+        "IMG_0571.jpg",
+        "IMG_0572.jpg",
+        "IMG_0573.jpg",
+        "IMG_0574.jpg",
+        "IMG_0575.jpg",
+        "IMG_0576.jpg",
+        "IMG_0577.jpg",
+        "IMG_0578.jpg",
+        "IMG_0579.jpg",
+        "IMG_0581.jpg",
+        "IMG_0582.jpg",
+        "IMG_0583.jpg",
+        "IMG_0584.jpg",
+        "IMG_0585.jpg",
+        "IMG_0586.jpg",
+        "IMG_0588.jpg",
+        "IMG_0589.jpg",
+        "IMG_0590.jpg",
+        "IMG_0591.jpg",
+        "IMG_0592.jpg",
+        "IMG_0593.jpg",
+        "IMG_0594.jpg",
+        "IMG_0595.jpg",
+        "IMG_0596.jpg",
+        "IMG_0597.jpg",
+        "IMG_0598.jpg",
+        "IMG_0599.jpg",
+        "IMG_0601.jpg",
+        "IMG_0602.jpg",
+        "IMG_0603.jpg",
+        "IMG_0604.jpg",
+        "IMG_0605.jpg",
+        "IMG_0606.jpg",
+        "IMG_0607.jpg",
+        "IMG_0608.jpg",
+        "IMG_0609.jpg",
+        "IMG_0610.jpg"
+      ];
+
+      const galleryData = [
+        ...existingFilenames.map((filename, index) => ({
+          src: `photos/life/sister/${filename}`,
+          id: index + 1,
+          caption: (photoCaptions[filename] || "").trim()
+        })),
+        ...emojiFilenames.map((filename, index) => ({
+          src: `photos/emoji/${filename}`,
+          id: existingFilenames.length + index + 1,
+          caption: ""
+        }))
+      ];
 
       const gridContainer = document.getElementById("gallery-grid");
       const lightboxImages = galleryData.map((item) => item.src);
@@ -131,11 +237,11 @@
           : "";
 
         article.innerHTML = `
-          <div class="overflow-hidden rounded-lg border border-[var(--border)]">
+          <div class="rounded-lg border border-[var(--border)] bg-white/5 flex items-center justify-center overflow-hidden">
             <img
               src="${item.src}"
               alt="Sister photo ${item.id}"
-              class="w-full h-48 object-cover cursor-pointer hover:scale-105 transition-transform duration-200"
+              class="w-full h-auto max-h-[420px] object-contain cursor-pointer hover:scale-[1.02] transition-transform duration-200"
               onclick="openLightbox(${index})"
             />
           </div>
