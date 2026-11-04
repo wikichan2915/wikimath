@@ -539,6 +539,7 @@
           <h2>📐 HKDSE Quadratic Model</h2>
         </div>
         <div class="formula-box">
+          <div class="math-eq" id="formulaDisplay">h(t) = -8.0t² + 20.0t</div>
           <div class="math-details">
             • <strong>General Form:</strong> $h(t) = -gt^2 + v_0 t$<br>
             • <strong>Axis of Symmetry:</strong> $t_{\text{peak}} = \frac{v_0}{2g} = 0.30\text{ s}$<br>
@@ -578,6 +579,7 @@
   const MAX_TRACES = 5;
   let traces = [];
   let lastSavedSnapshot = null;
+  let isTrackingSliderChange = false;
 
   // Animation State
   let animId = null;
@@ -592,6 +594,7 @@
   // Fixed World Coordinates
   const TARGET_AIR_TIME = 0.60;
   const TARGET_PEAK_H = 3.00;
+  const PRESET_GRAPH_MAX_HEIGHT = 15;
   const RUN_SPEED = 2.0; 
   const RUN_START_X = -1.2;
 
@@ -697,8 +700,16 @@
   }
 
   function onSliderInput() {
-    g = parseFloat(sliderG.value);
-    v0 = parseFloat(sliderV0.value);
+    const nextG = parseFloat(sliderG.value);
+    const nextV0 = parseFloat(sliderV0.value);
+
+    if (!isTrackingSliderChange && (nextG !== g || nextV0 !== v0)) {
+      recordCurrentTrace();
+      isTrackingSliderChange = true;
+    }
+
+    g = nextG;
+    v0 = nextV0;
 
     // Deselect presets
     document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
@@ -708,7 +719,7 @@
   }
 
   function onSliderCommit() {
-    recordCurrentTrace();
+    isTrackingSliderChange = false;
     drawScene();
   }
 
@@ -771,14 +782,18 @@
     const rect = canvas.parentElement.getBoundingClientRect();
     const w = rect.width;
     const h = rect.height;
+    const { peakTime, peakHeight, landingTime } = getMathematicalProperties();
+    const yAxisMax = Math.max(PRESET_GRAPH_MAX_HEIGHT, peakHeight * 1.15);
+    scaleY = Math.max(1, originY - 30) / yAxisMax;
 
     ctx.clearRect(0, 0, w, h);
 
     // 1. Background Grid Lines
     ctx.strokeStyle = '#1e293b';
     ctx.lineWidth = 1;
-    for (let ht = 1; ht <= 5; ht++) {
-      const y = toScreenY(ht);
+    for (let tick = 1; tick <= 5; tick++) {
+      const height = yAxisMax * tick / 5;
+      const y = toScreenY(height);
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(w, y);
@@ -786,7 +801,7 @@
 
       ctx.fillStyle = '#475569';
       ctx.font = '10px monospace';
-      ctx.fillText(`${ht}m`, 16, y - 4);
+      ctx.fillText(`${height.toFixed(yAxisMax >= 10 ? 0 : 1)}m`, 16, y - 4);
     }
 
     // 2. Target Clearance Line (h = 3.0m)
@@ -911,8 +926,6 @@
     }
 
     // 5. DRAW ACTIVE CURRENT PARABOLA CURVE: h(t) = -g*t^2 + v0*t
-    const { peakTime, peakHeight, landingTime } = getMathematicalProperties();
-
     ctx.save();
     ctx.strokeStyle = '#38bdf8';
     ctx.lineWidth = 3.2;
@@ -988,6 +1001,9 @@
     } else if (characterState.mode === 'landed') {
       charSX = toScreenX(characterState.x);
       charSY = originY - 14;
+    } else if (characterState.mode === 'falling') {
+      charSX = toScreenX(characterState.x);
+      charSY = toScreenY(characterState.y) - 14;
     } else if (characterState.mode === 'fell') {
       charSX = toScreenX(characterState.x);
       charSY = floorY - 14; // rests at the bottom of the sunken chasm
@@ -1024,6 +1040,7 @@
 
     isRunning = true;
     const { landingTime } = getMathematicalProperties();
+    const fallsIntoSpikePit = landingTime < 0.58;
 
     characterState = {
       mode: 'running',
@@ -1034,6 +1051,7 @@
 
     const runDuration = Math.abs(RUN_START_X) / RUN_SPEED;
     const jumpDuration = landingTime;
+    const fallDuration = 0.6;
     const startTime = performance.now();
 
     function step(timestamp) {
@@ -1052,12 +1070,20 @@
         characterState.simTime = tAir;
         characterState.x = tAir;
         characterState.y = Math.max(0, -g * tAir * tAir + v0 * tAir);
+      } else if (fallsIntoSpikePit && elapsed < runDuration + jumpDuration + fallDuration) {
+        // Phase 3: Accelerate smoothly into the spike pit
+        characterState.mode = 'falling';
+        characterState.simTime = landingTime;
+        characterState.x = landingTime;
+        const fallProgress = (elapsed - runDuration - jumpDuration) / fallDuration;
+        const pitDepth = CHASM_DEPTH_PX / scaleY;
+        characterState.y = -pitDepth * fallProgress * fallProgress;
       } else {
-        // Phase 3: Analytical Landing Snap
+        // Phase 4: Settle at the bottom of the pit
         characterState.simTime = landingTime;
         characterState.x = landingTime;
 
-        if (landingTime >= 0.58 && landingTime <= 0.62) {
+        if (!fallsIntoSpikePit) {
           characterState.mode = 'landed';
           characterState.y = 0;
         } else {
