@@ -249,6 +249,38 @@
       gap: 8px;
     }
 
+    .target-reveal[open] {
+      grid-column: 1 / -1;
+    }
+
+    .target-reveal summary {
+      list-style: none;
+    }
+
+    .target-reveal summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .target-reveal-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.65);
+      color: var(--accent-yellow);
+      font-size: 0.8rem;
+    }
+
+    .target-reveal-content .sub {
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+
     .preset-btn {
       background: var(--card-bg);
       color: var(--text-main);
@@ -478,11 +510,14 @@
             🪨 Heavy (太重)
             <span class="sub">g=80, v₀=20</span>
           </button>
-          <!-- Teacher Lock / Reveal Button -->
-          <button class="preset-btn locked" id="btnTarget" onclick="toggleTargetReveal()">
-            <span id="targetBtnTitle">🔒 Reveal Target</span>
-            <span class="sub" id="targetBtnSub">g = ???, v₀ = ???</span>
-          </button>
+          <details class="target-reveal">
+            <summary class="preset-btn locked">🔒 Reveal DSE Target</summary>
+            <div class="target-reveal-content">
+              <span>⭐ DSE Target</span>
+              <span class="sub">g=33.3, v₀=20</span>
+              <button class="preset-btn" id="btnTarget" onclick="setTargetPreset()">Use DSE Target</button>
+            </div>
+          </details>
         </div>
       </div>
 
@@ -566,9 +601,6 @@
   const formulaDisplay = document.getElementById('formulaDisplay');
   const resultBadge = document.getElementById('resultBadge');
   const chkKeepTraces = document.getElementById('chkKeepTraces');
-
-  // Teacher Reveal State
-  let isTargetRevealed = false;
 
   // Active Parameters (default start with Floaty to demonstrate the problem)
   let g = 8.0;
@@ -744,20 +776,11 @@
     drawScene();
   }
 
-  function toggleTargetReveal() {
+  function setTargetPreset() {
     recordCurrentTrace();
     document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
 
-    const btn = document.getElementById('btnTarget');
-    const title = document.getElementById('targetBtnTitle');
-    const sub = document.getElementById('targetBtnSub');
-
-    // Reveal and load optimal DSE math solution
-    isTargetRevealed = true;
-    btn.classList.remove('locked');
-    btn.classList.add('active');
-    title.innerHTML = '⭐ DSE Target';
-    sub.innerHTML = 'g=33.3, v₀=20';
+    document.getElementById('btnTarget').classList.add('active');
 
     // Exact theoretical values: g = 100/3 ≈ 33.33333, v0 = 20.0
     g = 100 / 3;
