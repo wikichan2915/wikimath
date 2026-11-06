@@ -1,15 +1,16 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <script>
-  window.MathJax = {
-    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
-  };
-</script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HKDSE S4 Math: 2D Game Jump Curve Simulator</title>
+  <title>HKDSE S4 Math: 2D Game Jump Curve Simulator (Exact Parameters)</title>
   <style>
     :root {
       --bg-dark: #0f172a;
@@ -19,6 +20,7 @@
       --accent-yellow: #facc15;
       --accent-green: #4ade80;
       --accent-red: #f87171;
+      --accent-orange: #fb923c;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --border-color: #475569;
@@ -172,6 +174,7 @@
     .result-success { background: rgba(74, 222, 128, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
     .result-spike { background: rgba(248, 113, 113, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
     .result-floaty { background: rgba(250, 204, 21, 0.2); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
+    .result-hit { background: rgba(251, 146, 60, 0.2); color: var(--accent-orange); border: 1px solid var(--accent-orange); }
 
     /* Control Panel */
     .control-panel {
@@ -249,38 +252,6 @@
       gap: 8px;
     }
 
-    .target-reveal[open] {
-      grid-column: 1 / -1;
-    }
-
-    .target-reveal summary {
-      list-style: none;
-    }
-
-    .target-reveal summary::-webkit-details-marker {
-      display: none;
-    }
-
-    .target-reveal-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-      padding: 10px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      background: rgba(15, 23, 42, 0.65);
-      color: var(--accent-yellow);
-      font-size: 0.8rem;
-    }
-
-    .target-reveal-content .sub {
-      color: var(--text-muted);
-      font-family: monospace;
-    }
-
     .preset-btn {
       background: var(--card-bg);
       color: var(--text-main);
@@ -321,6 +292,81 @@
       font-family: monospace;
     }
 
+    /* Coyote Time Toggle */
+    .coyote-toggle-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(251, 146, 60, 0.08);
+      border: 1px solid rgba(251, 146, 60, 0.35);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .coyote-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .coyote-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--accent-orange);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .coyote-sub {
+      font-size: 0.70rem;
+      color: var(--text-muted);
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #334155;
+      border: 1px solid var(--border-color);
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: var(--accent-orange);
+      border-color: var(--accent-orange);
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+
     /* Sliders */
     .slider-group {
       display: flex;
@@ -352,6 +398,7 @@
       background: #090d16;
       border-radius: 4px;
       outline: none;
+      touch-action: manipulation;
     }
 
     input[type=range]::-webkit-slider-thumb {
@@ -430,6 +477,7 @@
       font-size: 0.72rem;
       color: var(--text-muted);
       padding-top: 4px;
+      flex-wrap: wrap;
     }
 
     .legend-item {
@@ -442,6 +490,13 @@
       width: 16px;
       height: 3px;
       background: var(--accent-blue);
+      border-radius: 2px;
+    }
+
+    .legend-line-coyote {
+      width: 16px;
+      height: 3px;
+      background: var(--accent-orange);
       border-radius: 2px;
     }
 
@@ -459,7 +514,7 @@
   <header>
     <div class="header-title">
       <h1>🎮 S4 Quadratic Jump Simulator</h1>
-      <p>HKDSE Compulsory Part — Mathematical Modeling of Character Jumps in 2D Platformers</p>
+      <p>HKDSE Compulsory Part — Mathematical Modeling of Character Jumps (Exact Parameters)</p>
     </div>
     <div class="badge">HK Band 2 Interactive Tool</div>
   </header>
@@ -476,15 +531,15 @@
         <div class="readouts">
           <div class="readout-item">
             <span class="readout-label">Peak Height (最高點):</span>
-            <span class="readout-val" id="readoutPeakH">3.00 m</span>
+            <span class="readout-val" id="readoutPeakH">9.03 m</span>
           </div>
           <div class="readout-item">
             <span class="readout-label">Peak Time (對稱軸):</span>
-            <span class="readout-val" id="readoutPeakT">t = 0.30 s</span>
+            <span class="readout-val" id="readoutPeakT">t = 0.95 s</span>
           </div>
           <div class="readout-item">
             <span class="readout-label">Landing Time (滯空時間):</span>
-            <span class="readout-val" id="readoutAirT">0.60 s</span>
+            <span class="readout-val" id="readoutAirT">1.90 s</span>
           </div>
         </div>
 
@@ -502,22 +557,30 @@
           <h2>🎯 Lesson Presets (課堂探究預設)</h2>
         </div>
         <div class="presets-row">
-          <button class="preset-btn" id="btnFloaty" onclick="setPreset('floaty')">
+          <button class="preset-btn active" id="btnFloaty" onclick="setPreset('floaty')">
             ☁️ Floaty (太飄)
-            <span class="sub">g=8, v₀=20</span>
+            <span class="sub">g=10, v₀=15</span>
           </button>
           <button class="preset-btn" id="btnHeavy" onclick="setPreset('heavy')">
             🪨 Heavy (太重)
-            <span class="sub">g=80, v₀=20</span>
+            <span class="sub">g=50, v₀=15</span>
           </button>
-          <details class="target-reveal">
-            <summary class="preset-btn locked">🔒 Reveal DSE Target</summary>
-            <div class="target-reveal-content">
-              <span>⭐ DSE Target</span>
-              <span class="sub">g=33.3, v₀=20</span>
-              <button class="preset-btn" id="btnTarget" onclick="setTargetPreset()">Use DSE Target</button>
-            </div>
-          </details>
+          <!-- Teacher Lock / Reveal Button -->
+          
+        </div>
+      </div>
+
+      <!-- Coyote Time Toggle Card -->
+      <div class="panel-box" style="padding: 12px 16px;">
+        <div class="coyote-toggle-box">
+          <div class="coyote-info">
+            <span class="coyote-title">🦊 Coyote Time (土狼時間)</span>
+            <span class="coyote-sub" id="coyoteDesc">Off: Normal jump from edge (h₀ = 0.0m)</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="chkCoyoteTime" onchange="toggleCoyoteTime()">
+            <span class="toggle-slider"></span>
+          </label>
         </div>
       </div>
 
@@ -538,27 +601,31 @@
         <div class="slider-group">
           <div class="slider-header">
             <span class="name">Artificial Gravity g (人造重力):</span>
-            <span class="val" id="valG">33.3 m/s²</span>
+            <span class="val" id="valG">10.0 m/s²</span>
           </div>
-          <input type="range" id="sliderG" min="5" max="100" step="0.1" value="33.3" oninput="onSliderInput()" onchange="onSliderCommit()">
+          <input type="range" id="sliderG" min="5" max="100" step="0.5" value="10.0" oninput="onSliderInput()" onchange="onSliderCommit()">
         </div>
 
         <div class="slider-group">
           <div class="slider-header">
             <span class="name">Initial Velocity v₀ (初速度):</span>
-            <span class="val" id="valV0">20.0 m/s</span>
+            <span class="val" id="valV0">19.0 m/s</span>
           </div>
-          <input type="range" id="sliderV0" min="5" max="35" step="0.5" value="20.0" oninput="onSliderInput()" onchange="onSliderCommit()">
+          <input type="range" id="sliderV0" min="5" max="35" step="0.5" value="19.0" oninput="onSliderInput()" onchange="onSliderCommit()">
         </div>
 
         <div class="legend-row">
           <div class="legend-item">
             <div class="legend-line-current"></div>
-            <span>Current Graph (當前圖像)</span>
+            <span>Normal ($h_0 = 0$)</span>
+          </div>
+          <div class="legend-item" id="legendCoyoteItem" style="display: none;">
+            <div class="legend-line-coyote"></div>
+            <span>Coyote (Horizontal Offset only)</span>
           </div>
           <div class="legend-item">
             <div class="legend-line-trace"></div>
-            <span>Previous Traces (先前軌跡)</span>
+            <span>Previous Traces (留痕)</span>
           </div>
         </div>
       </div>
@@ -574,12 +641,12 @@
           <h2>📐 HKDSE Quadratic Model</h2>
         </div>
         <div class="formula-box">
-          <div class="math-eq" id="formulaDisplay">h(t) = -8.0t² + 20.0t</div>
-          <div class="math-details">
-            • <strong>General Form:</strong> $h(t) = -gt^2 + v_0 t$<br>
-            • <strong>Axis of Symmetry:</strong> $t_{\text{peak}} = \frac{v_0}{2g} = 0.30\text{ s}$<br>
-            • <strong>Landing Root:</strong> $t_{\text{land}} = \frac{v_0}{g} = 0.60\text{ s}$<br>
-            • <strong>Strict Goal:</strong> Air time $0.60\text{s} \pm 0.02\text{s}$ & Peak $3.0\text{m} \pm 0.1\text{m}$
+          <div class="math-eq" id="formulaDisplay">h(t) = -10.0t² + 19.0t</div>
+          <div class="math-details" id="mathDetailsText">
+            • <strong>General Form:</strong> $h(t) = -gt^2 + v_0 t + h_0$<br>
+            • <strong>Axis of Symmetry:</strong> $t_{\text{peak}} = \frac{v_0}{2g} = 0.40\text{ s}$<br>
+            • <strong>Landing Root:</strong> $t_{\text{land}} = \frac{v_0}{g} = 0.80\text{ s}$<br>
+            • <strong>Exact Target:</strong> Air time $t = 0.80\text{ s}$ & Peak $h = 4.0\text{ m}$ (Exact Match)
           </div>
         </div>
       </div>
@@ -601,17 +668,23 @@
   const formulaDisplay = document.getElementById('formulaDisplay');
   const resultBadge = document.getElementById('resultBadge');
   const chkKeepTraces = document.getElementById('chkKeepTraces');
+  const chkCoyoteTime = document.getElementById('chkCoyoteTime');
+  const coyoteDesc = document.getElementById('coyoteDesc');
+  const legendCoyoteItem = document.getElementById('legendCoyoteItem');
 
-  // Active Parameters (default start with Floaty to demonstrate the problem)
-  let g = 8.0;
-  let v0 = 20.0;
+  // Teacher Reveal State
+  let isTargetRevealed = false;
+
+  // Active Parameters (Default: Floaty Preset g=10, v0=15)
+  let g = 10.0;
+  let v0 = 15.0;
+  let h0 = 0.0;
+  let isCoyoteActive = false;
 
   // Trajectory Trace History
-  // Keeps up to 5 previous distinct trajectories for comparison
   const MAX_TRACES = 5;
   let traces = [];
   let lastSavedSnapshot = null;
-  let isTrackingSliderChange = false;
 
   // Animation State
   let animId = null;
@@ -624,18 +697,18 @@
   };
 
   // Fixed World Coordinates
-  const TARGET_AIR_TIME = 0.60;
-  const TARGET_PEAK_H = 3.00;
-  const PRESET_GRAPH_MAX_HEIGHT = 15;
+  const TARGET_AIR_TIME = 0.80; // 0.80 seconds exact
+  const TARGET_PEAK_H = 4.00;   // 4.00 meters exact
   const RUN_SPEED = 2.0; 
   const RUN_START_X = -1.2;
+  const COYOTE_GRACE_T = 0.10;
 
   // Viewport transform
   let originX = 120;
-  let originY = 300;
+  let originY = 310;
   let scaleX = 400;
-  let scaleY = 70;
-  const CHASM_DEPTH_PX = 85; // Visual sunken depth of the spike pit
+  let scaleY = 55;
+  const CHASM_DEPTH_PX = 85;
 
   function resizeCanvas() {
     const rect = canvas.parentElement.getBoundingClientRect();
@@ -645,19 +718,27 @@
 
     const w = rect.width;
     const h = rect.height;
-    originX = w * 0.22;
-    originY = h * 0.68;
-    scaleX = w * 0.45;
-    scaleY = h * 0.17;
+    originX = w * 0.18;
+    originY = h * 0.70;
+    scaleX = w * 0.44;
+    scaleY = h * 0.13;
     drawScene();
   }
 
   window.addEventListener('resize', resizeCanvas);
 
-  function getMathematicalProperties(testG = g, testV0 = v0) {
+  function getMathematicalProperties(testG = g, testV0 = v0, testH0 = h0) {
     const peakTime = testV0 / (2 * testG);
-    const peakHeight = (testV0 * testV0) / (4 * testG);
-    const landingTime = testV0 / testG;
+    const peakHeight = (testV0 * testV0) / (4 * testG) + testH0;
+
+    let landingTime;
+    if (Math.abs(testH0) < 0.001) {
+      landingTime = testV0 / testG;
+    } else {
+      const disc = testV0 * testV0 + 4 * testG * testH0;
+      landingTime = disc > 0 ? (testV0 + Math.sqrt(disc)) / (2 * testG) : 0;
+    }
+
     return { peakTime, peakHeight, landingTime };
   }
 
@@ -671,41 +752,61 @@
     readoutPeakT.textContent = `t = ${peakTime.toFixed(2)} s`;
     readoutAirT.textContent = `${landingTime.toFixed(2)} s`;
 
-    formulaDisplay.textContent = `h(t) = -${g.toFixed(1)}t² + ${v0.toFixed(1)}t`;
+    const cStr = ''; // No vertical offset
+    formulaDisplay.textContent = `h(t) = -${g.toFixed(1)}t² + ${v0.toFixed(1)}t${cStr}`;
 
     if (!isRunning) {
       evaluateResult(false);
     }
   }
 
+  function toggleCoyoteTime() {
+    recordCurrentTrace();
+    isCoyoteActive = chkCoyoteTime.checked;
+    h0 = 0.0; // No vertical offset, stays level with the ledge
+
+    if (isCoyoteActive) {
+      coyoteDesc.innerHTML = '<strong>On:</strong> Mid-air jump (Horizontal offset, <span style="color:#fb923c">h₀ = 0.0m</span>)';
+      legendCoyoteItem.style.display = 'flex';
+    } else {
+      coyoteDesc.textContent = 'Off: Normal jump (h₀ = 0.0m)';
+      legendCoyoteItem.style.display = 'none';
+    }
+
+    updateMathUI();
+    drawScene();
+  }
+
   function evaluateResult(showOutcome = true) {
     const { landingTime, peakHeight } = getMathematicalProperties();
 
-    // Strict tolerances for pedagogical precision
-    const isSafeLanding = (landingTime >= 0.58 && landingTime <= 0.62);
-    const isGoodHeight = (peakHeight >= 2.90 && peakHeight <= 3.10);
+    // Exact Match: strictly requires g=25.0 and v0=20.0 (landingTime = 0.80s, peakHeight = 4.00m)
+    const isExactLanding = Math.abs(landingTime - TARGET_AIR_TIME) < 0.005;
+    const isExactHeight = Math.abs(peakHeight - TARGET_PEAK_H) < 0.02;
 
-    if (isSafeLanding && isGoodHeight) {
+    if (isExactLanding && isExactHeight) {
       resultBadge.className = 'result-badge result-success';
-      resultBadge.innerHTML = '✨ Target Achieved! (完美過關)';
+      resultBadge.innerHTML = '✨ Exact Target Achieved! (完美精確過關)';
       return 'success';
-    } else if (landingTime < 0.58) {
+    } else if (landingTime < TARGET_AIR_TIME - 0.005) {
       resultBadge.className = 'result-badge result-spike';
       resultBadge.innerHTML = '💥 Dropped into Spikes! (太重墜坑)';
       return 'spikes';
+    } else if (peakHeight < TARGET_PEAK_H - 0.02) {
+      resultBadge.className = 'result-badge result-hit';
+      resultBadge.innerHTML = '⚠️ Target Height Not Reached! Will hit the obstacle. (未達目標高度，會撞到障礙物！)';
+      return 'hit';
     } else {
       resultBadge.className = 'result-badge result-floaty';
-      resultBadge.innerHTML = '⚠️ Overshot Platform! (太飄過頭)';
+      resultBadge.innerHTML = '⚠️ Overshot Platform! (跳得太高，會飛過平台！)';
       return 'floaty';
     }
   }
 
-  // Record a trace into history
   function recordCurrentTrace() {
     if (!chkKeepTraces.checked) return;
 
-    // Check if distinct from previous snapshot
-    if (lastSavedSnapshot && Math.abs(lastSavedSnapshot.g - g) < 0.5 && Math.abs(lastSavedSnapshot.v0 - v0) < 0.2) {
+    if (lastSavedSnapshot && Math.abs(lastSavedSnapshot.g - g) < 0.2 && Math.abs(lastSavedSnapshot.v0 - v0) < 0.2 && lastSavedSnapshot.h0 === h0 && lastSavedSnapshot.isCoyote === isCoyoteActive) {
       return;
     }
 
@@ -713,6 +814,8 @@
     traces.push({
       g: g,
       v0: v0,
+      h0: h0,
+      isCoyote: isCoyoteActive,
       peakTime,
       peakHeight,
       landingTime
@@ -722,7 +825,7 @@
       traces.shift();
     }
 
-    lastSavedSnapshot = { g, v0 };
+    lastSavedSnapshot = { g, v0, h0, isCoyote: isCoyoteActive };
   }
 
   function clearTraces() {
@@ -732,18 +835,9 @@
   }
 
   function onSliderInput() {
-    const nextG = parseFloat(sliderG.value);
-    const nextV0 = parseFloat(sliderV0.value);
+    g = parseFloat(sliderG.value);
+    v0 = parseFloat(sliderV0.value);
 
-    if (!isTrackingSliderChange && (nextG !== g || nextV0 !== v0)) {
-      recordCurrentTrace();
-      isTrackingSliderChange = true;
-    }
-
-    g = nextG;
-    v0 = nextV0;
-
-    // Deselect presets
     document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
 
     updateMathUI();
@@ -751,7 +845,7 @@
   }
 
   function onSliderCommit() {
-    isTrackingSliderChange = false;
+    recordCurrentTrace();
     drawScene();
   }
 
@@ -760,12 +854,12 @@
     document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
 
     if (type === 'floaty') {
-      g = 8.0;
-      v0 = 20.0;
+      g = 10.0;
+      v0 = 19.0;
       document.getElementById('btnFloaty').classList.add('active');
     } else if (type === 'heavy') {
-      g = 80.0;
-      v0 = 20.0;
+      g = 50.0;
+      v0 = 15.0;
       document.getElementById('btnHeavy').classList.add('active');
     }
 
@@ -776,17 +870,25 @@
     drawScene();
   }
 
-  function setTargetPreset() {
+  function toggleTargetReveal() {
     recordCurrentTrace();
     document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
 
-    document.getElementById('btnTarget').classList.add('active');
+    const btn = document.getElementById('btnTarget');
+    const title = document.getElementById('targetBtnTitle');
+    const sub = document.getElementById('targetBtnSub');
 
-    // Exact theoretical values: g = 100/3 ≈ 33.33333, v0 = 20.0
-    g = 100 / 3;
+    isTargetRevealed = true;
+    btn.classList.remove('locked');
+    btn.classList.add('active');
+    title.innerHTML = '⭐ DSE Target';
+    sub.innerHTML = 'g=25, v₀=20';
+
+    // Exact Clean Integer Solution
+    g = 25.0;
     v0 = 20.0;
 
-    sliderG.value = '33.3';
+    sliderG.value = '25.0';
     sliderV0.value = '20.0';
 
     updateMathUI();
@@ -805,18 +907,14 @@
     const rect = canvas.parentElement.getBoundingClientRect();
     const w = rect.width;
     const h = rect.height;
-    const { peakTime, peakHeight, landingTime } = getMathematicalProperties();
-    const yAxisMax = Math.max(PRESET_GRAPH_MAX_HEIGHT, peakHeight * 1.15);
-    scaleY = Math.max(1, originY - 30) / yAxisMax;
 
     ctx.clearRect(0, 0, w, h);
 
-    // 1. Background Grid Lines
+    // 1. Background Grid Lines up to 6m
     ctx.strokeStyle = '#1e293b';
     ctx.lineWidth = 1;
-    for (let tick = 1; tick <= 5; tick++) {
-      const height = yAxisMax * tick / 5;
-      const y = toScreenY(height);
+    for (let ht = 1; ht <= 6; ht++) {
+      const y = toScreenY(ht);
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(w, y);
@@ -824,10 +922,10 @@
 
       ctx.fillStyle = '#475569';
       ctx.font = '10px monospace';
-      ctx.fillText(`${height.toFixed(yAxisMax >= 10 ? 0 : 1)}m`, 16, y - 4);
+      ctx.fillText(`${ht}m`, 16, y - 4);
     }
 
-    // 2. Target Clearance Line (h = 3.0m)
+    // 2. Exact Target Clearance Line (h = 4.0m)
     const targetY = toScreenY(TARGET_PEAK_H);
     ctx.save();
     ctx.setLineDash([4, 4]);
@@ -838,32 +936,30 @@
     ctx.stroke();
     ctx.fillStyle = '#38bdf8';
     ctx.font = '11px sans-serif';
-    ctx.fillText('Target Obstacle Peak = 3.0 m (±0.10m)', originX + 0.08 * scaleX, targetY - 6);
+    ctx.fillText('Target Obstacle Peak = 4.0 m', originX + 0.08 * scaleX, targetY - 6);
     ctx.restore();
 
-    // 3. Platform Geometry Setup
-    const safeStartX = toScreenX(0.58);
-    const safeEndX = toScreenX(0.62);
+    // 3. Platform Geometry Setup (Chasm spans to exact 0.80s landing boundary)
+    const goalX = toScreenX(TARGET_AIR_TIME);
     const floorY = originY + CHASM_DEPTH_PX;
 
     // --- Draw Sunken Chasm Background (Spike Pit) ---
     ctx.fillStyle = '#100a14';
-    ctx.fillRect(originX, originY, safeStartX - originX, h - originY);
+    ctx.fillRect(originX, originY, goalX - originX, h - originY);
 
-    // Deep pit gradient fill
     const pitGrad = ctx.createLinearGradient(0, originY, 0, floorY);
     pitGrad.addColorStop(0, 'rgba(239, 68, 68, 0.05)');
     pitGrad.addColorStop(1, 'rgba(239, 68, 68, 0.28)');
     ctx.fillStyle = pitGrad;
-    ctx.fillRect(originX, originY, safeStartX - originX, floorY - originY);
+    ctx.fillRect(originX, originY, goalX - originX, floorY - originY);
 
     // Vertical Rock Cliff Faces
     ctx.fillStyle = '#1e293b';
-    ctx.fillRect(originX - 4, originY, 4, CHASM_DEPTH_PX); // left cliff face
-    ctx.fillRect(safeStartX, originY, 4, CHASM_DEPTH_PX); // right cliff face
+    ctx.fillRect(originX - 4, originY, 4, CHASM_DEPTH_PX);
+    ctx.fillRect(goalX, originY, 4, CHASM_DEPTH_PX);
 
-    // --- Draw Sunken Floor Spikes (Resting at Floor Level) ---
-    const pitWidth = safeStartX - originX;
+    // --- Draw Sunken Floor Spikes ---
+    const pitWidth = goalX - originX;
     const spikeW = 14;
     const spikeH = 16;
     const numSpikes = Math.floor(pitWidth / spikeW);
@@ -889,7 +985,6 @@
     }
     ctx.restore();
 
-    // Pit Warning Label
     ctx.fillStyle = '#f87171';
     ctx.font = 'bold 11px sans-serif';
     ctx.fillText('▲ Spike Pit (危險深坑)', originX + pitWidth / 2 - 58, floorY + 22);
@@ -903,22 +998,36 @@
     ctx.font = '11px sans-serif';
     ctx.fillText('Ledge (起點 t=0)', originX - 105, originY + 24);
 
-    // --- Draw Safe Landing Platform ---
+    // --- Coyote Grace Zone Marker over gap ---
+    if (isCoyoteActive) {
+      const coyoteW = COYOTE_GRACE_T * scaleX;
+      ctx.save();
+      ctx.fillStyle = 'rgba(251, 146, 60, 0.12)';
+      ctx.fillRect(originX, originY - 40, coyoteW, 40 + CHASM_DEPTH_PX);
+      ctx.strokeStyle = 'rgba(251, 146, 60, 0.6)';
+      ctx.setLineDash([3, 3]);
+      ctx.strokeRect(originX, originY - 40, coyoteW, 40 + CHASM_DEPTH_PX);
+      ctx.fillStyle = '#fb923c';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillText('🦊 Coyote Zone (0.1s)', originX + 2, originY - 44);
+      ctx.restore();
+    }
+
+    // --- Draw Safe Landing Platform (Exact Goal at 0.80s) ---
     ctx.fillStyle = 'rgba(74, 222, 128, 0.15)';
-    ctx.fillRect(safeStartX, originY, w - safeStartX, h - originY);
+    ctx.fillRect(goalX, originY, w - goalX, h - originY);
     ctx.fillStyle = '#4ade80';
-    ctx.fillRect(safeStartX, originY, safeEndX - safeStartX, 6);
+    ctx.fillRect(goalX, originY, 8, 6); // exact edge cap
     ctx.fillStyle = '#22c55e';
-    ctx.fillRect(safeEndX, originY, w - safeEndX, 4);
+    ctx.fillRect(goalX + 8, originY, w - goalX - 8, 4);
 
     ctx.font = 'bold 11px sans-serif';
     ctx.fillStyle = '#4ade80';
-    ctx.fillText('🎯 Goal (0.6s ±0.02s)', safeStartX + 4, originY + 24);
+    ctx.fillText('🎯 Goal (t = 0.80s)', goalX + 6, originY + 24);
 
-    // 4. DRAW PREVIOUS TRAJECTORY TRACES (Ghost Curves)
+    // 4. DRAW PREVIOUS TRAJECTORY TRACES
     if (chkKeepTraces.checked && traces.length > 0) {
       traces.forEach((tr, idx) => {
-        // Opacity increases for more recent traces
         const alpha = 0.20 + (idx / traces.length) * 0.35;
         ctx.save();
         ctx.setLineDash([4, 4]);
@@ -926,41 +1035,81 @@
         ctx.lineWidth = 1.6;
         ctx.beginPath();
 
-        const trMaxT = Math.min(tr.landingTime * 1.05, 1.25);
+        const trMaxT = Math.min(tr.landingTime * 1.05, 1.45);
         const trStep = trMaxT / 70;
         for (let t = 0; t <= trMaxT; t += trStep) {
-          const ht = -tr.g * t * t + tr.v0 * t;
-          const sx = toScreenX(t);
+          const ht = -tr.g * t * t + tr.v0 * t + (tr.h0 || 0);
+          const sx = toScreenX(t + (tr.isCoyote ? COYOTE_GRACE_T : 0));
           const sy = toScreenY(ht);
           if (t === 0) ctx.moveTo(sx, sy);
           else ctx.lineTo(sx, sy);
         }
         ctx.stroke();
 
-        // Faint trace peak dot
         if (tr.peakHeight > 0) {
           ctx.fillStyle = `rgba(250, 204, 21, ${alpha * 0.9})`;
           ctx.beginPath();
-          ctx.arc(toScreenX(tr.peakTime), toScreenY(tr.peakHeight), 3, 0, Math.PI * 2);
+          ctx.arc(toScreenX(tr.peakTime + (tr.isCoyote ? COYOTE_GRACE_T : 0)), toScreenY(tr.peakHeight), 3, 0, Math.PI * 2);
           ctx.fill();
         }
         ctx.restore();
       });
     }
 
-    // 5. DRAW ACTIVE CURRENT PARABOLA CURVE: h(t) = -g*t^2 + v0*t
+    // 5. IF COYOTE TIME IS ACTIVE: DRAW NORMAL GHOST CURVE
+    if (isCoyoteActive) {
+      const normalProps = getMathematicalProperties(g, v0, 0.0);
+      ctx.save();
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      const nMaxT = Math.min(normalProps.landingTime * 1.05, 1.45);
+      const nStep = nMaxT / 100;
+      for (let t = 0; t <= nMaxT; t += nStep) {
+        const ht = -g * t * t + v0 * t;
+        const sx = toScreenX(t);
+        const sy = toScreenY(ht);
+        if (t === 0) ctx.moveTo(sx, sy);
+        else ctx.lineTo(sx, sy);
+      }
+      ctx.stroke();
+
+      const { peakTime, peakHeight } = getMathematicalProperties();
+      const pSX_normal = toScreenX(normalProps.peakTime);
+      const pSX_coyote = toScreenX(peakTime + COYOTE_GRACE_T);
+      const peakY = toScreenY(peakHeight);
+
+      ctx.strokeStyle = '#fb923c';
+      ctx.setLineDash([]);
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(pSX_normal, peakY + 15);
+      ctx.lineTo(pSX_coyote, peakY + 15);
+      ctx.stroke();
+      ctx.fillStyle = '#fb923c';
+      ctx.font = 'bold 10px monospace';
+      ctx.fillText('Δt = 0.1s', (pSX_normal + pSX_coyote) / 2 - 25, peakY + 28);
+
+      ctx.restore();
+    }
+
+    // 6. DRAW ACTIVE CURRENT PARABOLA CURVE
+    const { peakTime, peakHeight, landingTime } = getMathematicalProperties();
+    const hOffset = isCoyoteActive ? COYOTE_GRACE_T : 0.0;
+
     ctx.save();
-    ctx.strokeStyle = '#38bdf8';
+    ctx.strokeStyle = isCoyoteActive ? '#fb923c' : '#38bdf8';
     ctx.lineWidth = 3.2;
-    ctx.shadowColor = '#38bdf8';
+    ctx.shadowColor = isCoyoteActive ? '#fb923c' : '#38bdf8';
     ctx.shadowBlur = 8;
     ctx.beginPath();
 
-    const maxT = Math.min(landingTime * 1.05, 1.25);
+    const maxT = Math.min(landingTime * 1.05, 1.45);
     const step = maxT / 120;
     for (let t = 0; t <= maxT; t += step) {
-      const ht = -g * t * t + v0 * t;
-      const sx = toScreenX(t);
+      const ht = -g * t * t + v0 * t + h0;
+      const sx = toScreenX(t + hOffset);
       const sy = toScreenY(ht);
       if (t === 0) ctx.moveTo(sx, sy);
       else ctx.lineTo(sx, sy);
@@ -968,12 +1117,11 @@
     ctx.stroke();
     ctx.restore();
 
-    // 6. Draw Vertex Peak Marker & Axis of Symmetry
+    // 7. Draw Vertex Peak Marker & Axis of Symmetry
     if (peakHeight > 0) {
-      const peakSX = toScreenX(peakTime);
+      const peakSX = toScreenX(peakTime + hOffset);
       const peakSY = toScreenY(peakHeight);
 
-      // Dashed Axis of Symmetry
       ctx.save();
       ctx.setLineDash([3, 3]);
       ctx.strokeStyle = 'rgba(250, 204, 21, 0.7)';
@@ -983,7 +1131,6 @@
       ctx.stroke();
       ctx.restore();
 
-      // Peak Dot
       ctx.fillStyle = '#facc15';
       ctx.shadowColor = '#facc15';
       ctx.shadowBlur = 6;
@@ -994,17 +1141,18 @@
 
       ctx.fillStyle = '#facc15';
       ctx.font = 'bold 11px monospace';
-      ctx.fillText(`Peak (${peakTime.toFixed(2)}s, ${peakHeight.toFixed(2)}m)`, peakSX - 45, peakSY - 12);
+      ctx.fillText(`Peak (${(peakTime + hOffset).toFixed(2)}s, ${peakHeight.toFixed(2)}m)`, peakSX - 45, peakSY - 12);
     }
 
-    // 7. Draw Landing Root Marker
-    const landSX = toScreenX(landingTime);
-    ctx.fillStyle = (landingTime >= 0.58 && landingTime <= 0.62) ? '#4ade80' : '#ef4444';
+    // 8. Draw Landing Root Marker
+    const landSX = toScreenX(landingTime + hOffset);
+    const isExactMatch = Math.abs(landingTime - TARGET_AIR_TIME) < 0.005 && Math.abs(peakHeight - TARGET_PEAK_H) < 0.02;
+    ctx.fillStyle = isExactMatch ? '#4ade80' : '#ef4444';
     ctx.beginPath();
     ctx.arc(landSX, originY, 4.5, 0, Math.PI * 2);
     ctx.fill();
 
-    // 8. Draw Character Avatar
+    // 9. Draw Character Avatar
     drawCharacter();
   }
 
@@ -1018,8 +1166,11 @@
     } else if (characterState.mode === 'running') {
       charSX = toScreenX(characterState.x);
       charSY = originY - 14;
+    } else if (characterState.mode === 'coyote-grace') {
+      charSX = toScreenX(characterState.x);
+      charSY = toScreenY(characterState.y) - 14;
     } else if (characterState.mode === 'jumping') {
-      charSX = toScreenX(characterState.simTime);
+      charSX = toScreenX(characterState.x);
       charSY = toScreenY(characterState.y) - 14;
     } else if (characterState.mode === 'landed') {
       charSX = toScreenX(characterState.x);
@@ -1029,41 +1180,36 @@
       charSY = toScreenY(characterState.y) - 14;
     } else if (characterState.mode === 'fell') {
       charSX = toScreenX(characterState.x);
-      charSY = floorY - 14; // rests at the bottom of the sunken chasm
+      charSY = floorY - 14;
     }
 
     ctx.save();
     ctx.translate(charSX, charSY);
 
-    // Glowing avatar
-    ctx.fillStyle = '#38bdf8';
-    ctx.shadowColor = '#38bdf8';
+    ctx.fillStyle = isCoyoteActive ? '#fb923c' : '#38bdf8';
+    ctx.shadowColor = isCoyoteActive ? '#fb923c' : '#38bdf8';
     ctx.shadowBlur = 10;
     ctx.beginPath();
     ctx.arc(0, 0, 12, 0, Math.PI * 2);
     ctx.fill();
 
-    // Face / Eyes
     ctx.shadowBlur = 0;
     ctx.fillStyle = '#0f172a';
     ctx.beginPath();
     ctx.arc(4, -2, 2.5, 0, Math.PI * 2);
     ctx.fill();
 
-    // Crown or Badge
     ctx.fillStyle = '#facc15';
     ctx.fillRect(-6, -14, 12, 3);
 
     ctx.restore();
   }
 
-  // Animation Loop with Analytical Clamping
   function startJumpAnimation() {
     if (isRunning) return;
 
     isRunning = true;
-    const { landingTime } = getMathematicalProperties();
-    const fallsIntoSpikePit = landingTime < 0.58;
+    const { landingTime, peakHeight } = getMathematicalProperties();
 
     characterState = {
       mode: 'running',
@@ -1073,45 +1219,51 @@
     };
 
     const runDuration = Math.abs(RUN_START_X) / RUN_SPEED;
+    const coyoteGraceDuration = isCoyoteActive ? COYOTE_GRACE_T : 0.0;
     const jumpDuration = landingTime;
-    const fallDuration = 0.6;
+    const fallDuration = 0.5;
     const startTime = performance.now();
 
     function step(timestamp) {
       const elapsed = (timestamp - startTime) / 1000;
 
       if (elapsed < runDuration) {
-        // Phase 1: Running along the left ledge
         characterState.mode = 'running';
         const progress = elapsed / runDuration;
         characterState.x = RUN_START_X + progress * (-RUN_START_X);
         characterState.y = 0;
-      } else if (elapsed < runDuration + jumpDuration) {
-        // Phase 2: Quadratic Trajectory in air
+      } else if (isCoyoteActive && elapsed < runDuration + coyoteGraceDuration) {
+        characterState.mode = 'coyote-grace';
+        const cProgress = (elapsed - runDuration) / coyoteGraceDuration;
+        characterState.x = cProgress * COYOTE_GRACE_T;
+        characterState.y = 0.0; // No vertical offset, stays on ledge height
+      } else if (elapsed < runDuration + coyoteGraceDuration + jumpDuration) {
         characterState.mode = 'jumping';
-        const tAir = elapsed - runDuration;
+        const tAir = elapsed - runDuration - coyoteGraceDuration;
         characterState.simTime = tAir;
-        characterState.x = tAir;
-        characterState.y = Math.max(0, -g * tAir * tAir + v0 * tAir);
-      } else if (fallsIntoSpikePit && elapsed < runDuration + jumpDuration + fallDuration) {
-        // Phase 3: Accelerate smoothly into the spike pit
+        characterState.x = tAir + (isCoyoteActive ? COYOTE_GRACE_T : 0.0);
+        characterState.y = Math.max(-1.5, -g * tAir * tAir + v0 * tAir + h0);
+      } else if (landingTime < TARGET_AIR_TIME - 0.005 && elapsed < runDuration + coyoteGraceDuration + jumpDuration + fallDuration) {
         characterState.mode = 'falling';
         characterState.simTime = landingTime;
-        characterState.x = landingTime;
-        const fallProgress = (elapsed - runDuration - jumpDuration) / fallDuration;
+        characterState.x = landingTime + (isCoyoteActive ? COYOTE_GRACE_T : 0.0);
+        const fallProgress = (elapsed - runDuration - coyoteGraceDuration - jumpDuration) / fallDuration;
         const pitDepth = CHASM_DEPTH_PX / scaleY;
         characterState.y = -pitDepth * fallProgress * fallProgress;
       } else {
-        // Phase 4: Settle at the bottom of the pit
         characterState.simTime = landingTime;
-        characterState.x = landingTime;
+        characterState.x = landingTime + (isCoyoteActive ? COYOTE_GRACE_T : 0.0);
 
-        if (!fallsIntoSpikePit) {
+        const isExactMatch = Math.abs(landingTime - TARGET_AIR_TIME) < 0.005 && Math.abs(peakHeight - TARGET_PEAK_H) < 0.02;
+        if (isExactMatch) {
           characterState.mode = 'landed';
           characterState.y = 0;
-        } else {
+        } else if (landingTime < TARGET_AIR_TIME - 0.005) {
           characterState.mode = 'fell';
           characterState.y = -0.5;
+        } else {
+          characterState.mode = 'landed';
+          characterState.y = 0;
         }
 
         evaluateResult(true);
@@ -1128,7 +1280,6 @@
     animId = requestAnimationFrame(step);
   }
 
-  // Keyboard Spacebar Trigger
   window.addEventListener('keydown', (e) => {
     if (e.code === 'Space') {
       e.preventDefault();
@@ -1138,8 +1289,9 @@
 
   // Initialize
   resizeCanvas();
-  setPreset('floaty'); // Start on floaty to present the game flaw to students!
+  setPreset('floaty');
 </script>
 
 </body>
 </html>
+```
